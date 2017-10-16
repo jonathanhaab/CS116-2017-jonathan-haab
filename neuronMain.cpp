@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "neuron.hpp"
+//#include "neuron.hpp"
 #include "neuron.cpp"
 
 using namespace std;
@@ -9,7 +9,7 @@ using namespace std;
 
 int main()
 {
-		/// Initialisation
+/// Initialisation -----------------------------------------------------
 	// Time
 	const long startTime(0);
 	const long stopTime(200);
@@ -36,7 +36,7 @@ int main()
 	neurons.push_back(neuron2);
 
 
-	
+/// Dialogue utilisateur -----------------------------------------------
 	
 	cout << "Enter the current's value : ";
 	cin >> iExt;
@@ -57,7 +57,7 @@ int main()
 	
 	
 	
-		/// Lancement de la simulation ---------------------------------
+/// Lancement de la simulation -----------------------------------------
 	
 	std::ofstream neurons_potential;
 	neurons_potential.open("Neurons_Potential.txt");
@@ -75,30 +75,22 @@ int main()
 			current_i = 0;
 		}
 		
+		if(neurons[0].update(current_i, simStep)){
+			
+			neurons[1].receive(simStep-1, neurons[0].getJ());
+		}
+		
+		neurons[1].update(0, simStep);
+		
+
 		for(size_t i(0); i < neurons.size(); ++i) {
+			neurons_potential << "Neuron " << i+1 << "\t "<< neurons[i].getV() << "\t" << " mV at t = " << simStep*h << " ms " << "\t";
+		}
+
 			
-			neurons[i].update(h, current_i, simStep);
-			
-			neurons_potential << "Neuron " << i+1 << "\t "<< neurons[i].getV() << "\t" << " pA at t = " << simStep*h << " ms " << "\t";
-			
-			/// si le neurone i spike, tous les neurones suivants doivent recevoir un courant additionnel!
-			if(neurons[i].isSpiking()) { //// ISSPIKING NE FONCTIONNE PAS!!!!
-				
-				for(size_t j(i+1);  j < neurons.size(); ++j) { 
-					
-					neurons[j].receive(simStep + 1, neurons[i].getJ());
-				}
-			}
-			
-			
-			/*
-			if(neurons[i].isSpiking()) {
-				neurons_potential << " *SPIKING* ";
-			}
-			*/
 			neurons_potential << "\t ";
 			
-		}
+		
 		
 		neurons_potential << "\n";
 		

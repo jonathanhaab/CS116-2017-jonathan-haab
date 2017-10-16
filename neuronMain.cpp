@@ -1,8 +1,8 @@
 #include <iostream>
 #include <fstream>
 
-//#include "neuron.hpp"
-#include "neuron.cpp"
+#include "neuron.hpp"
+
 
 using namespace std;
 
@@ -107,13 +107,6 @@ int main()
  * 
  * 
  * 
- * ------------
- *  C = 250 pF
- * 	Tau = 10 ms
- *  Tau ref = 2ms
- *  Vreset = -70 mV => après un  spike
- *  h = 0.1 ms
- *  -----------
  * 
  * D'après le texte 
  * tauE = 20 ms

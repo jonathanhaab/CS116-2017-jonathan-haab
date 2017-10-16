@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include "constantes.hpp"
  
 #ifndef NEURON_H
 #define NEURON_H
@@ -13,6 +14,7 @@ class Neuron
 {
 	public :
 	
+	/*
 		static constexpr double h = 0.1;
 		static constexpr long tau = 20; //ms
 		static constexpr double tau_ref = 2; //ms
@@ -25,7 +27,7 @@ class Neuron
 		static constexpr int D_step = 15;
 		static constexpr double c1 = exp(-h/tau);
 		static constexpr double c2 = 1-exp(-h/tau);
-	
+	*/
 		//Constructeur
 		Neuron();
 		

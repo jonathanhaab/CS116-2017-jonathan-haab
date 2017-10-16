@@ -49,7 +49,7 @@ bool Neuron::update(double iExt, double simStep)
 
 void Neuron::updateState(double simStep)
 {
-	if(spikes.empty() or abs(spikes.back() - (localStep))*h > refractoryTime) {
+	if(spikes.empty() or abs(spikes.back() - (simStep))*h > refractoryTime) {
 		state = EXCITATORY;
 	} else {
 		state = REFRACTORY;

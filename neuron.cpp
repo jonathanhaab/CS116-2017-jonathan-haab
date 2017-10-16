@@ -5,44 +5,97 @@
 
 using namespace std;
 
-//--------
 
-
-Neuron::Neuron(double c)
-	: c(c)
+Neuron::Neuron()
+	: localStep(0), J(0)
 {
-	V = reset_potential; //mV
-	spikesTime.clear();
+	state = INHIBITORY;
+	v = v_res; //mV
+	spikes.clear();
+	ringBuffer.clear();
 }
 
 
-void Neuron::update(sf::Time h, double iExt, sf::Time simTime)
+void Neuron::update(double h, double iExt, double simStep)
 {
-	/// Spike (-55mV)
-	if(V > teta) {
-		V = reset_potential;
-		spikesTime.pushback(simTime);
+	updateState(h, simStep);
+	
+	if(state == EXCITATORY) {
+
+		/// Potentiel de la membrane
+		double r(tau/c);
+		
+		
+		if(ringBuffer.find(simStep) == ringBuffer.end()) {
+			
+			v = exp(-h/tau)*v + iExt*r*(1-exp(-h/tau)); // Pas de J à cette step
+	
+		} else {
+			v = exp(-h/tau)*v + iExt*r*(1-exp(-h/tau)) + ringBuffer[simStep]; // Ajout du J à cette step
+		}
+		
+		
+		
+		/// Spike (20mV)
+		if(v > v_th) {
+			J = v; // On donne à J toute la décharge
+			v = v_res;
+			spikes.push_back(simStep);
+		}
+		
+	} else {
+		
+		v = v_res; // refractory
+		
 	}
 	
-	/// Potentiel de la membrane
-	double r(tau/c);
-	
-	V = exp(-h/tau)*V + iExt*r/tau*(1-exp(-h/tau));
-	
+	localStep += 1;
 }
 
-ostream& Neuron::showSpikes()
+void Neuron::updateState(double h, double simStep)
 {
-	ostream out;
+	if(spikes.empty() or abs(spikes.back() - (localStep*h)) > refractoryTime) {
+		state = EXCITATORY;
+	} else {
+		state = INHIBITORY;
+	}
+}
+
+vector<long> Neuron::getSpikesTime()
+{
+	return spikes;
+}
+
+double Neuron::getV()
+{
+	return v;
+}
+
+double Neuron::getJ()
+{
+	return J;
+}
+
+bool Neuron::isSpiking()
+{
 	
-	out << "le nombre de spike effectués est : " << spikes.size() << endl;
-	
-	out << "n°			temps" << endl;
-	for(size_t i(0); i < spikes.size(); ++i) {
-		
-		out << i << "			" << spikes[i] << endl; 
-		
+	if(!(spikes.empty()) and (abs(localStep - spikes.back()) < 1e-1)){
+		return true;
 	}
 	
-	return out;
+	return false;
+}
+
+
+void Neuron::receive(long step, double J) 
+{
+	if(ringBuffer.find(step) == ringBuffer.end()) {
+		
+		ringBuffer.insert(std::make_pair(step, J));
+		
+	} else {
+		
+		ringBuffer[step] += J;// On cumule les différents J
+		
+	}
 }

@@ -1,41 +1,90 @@
 #include <iostream>
 #include <vector>
-#include <Time.hpp>
  
 #ifndef NEURON_H
 #define NEURON_H
 
+#include <unordered_map>
+
+enum State { EXCITATORY, INHIBITORY, REFRACTORY , stateSize};
+
+
 class Neuron
 {
 	public :
+	
 		//Constructeur
-		Neuron(double c);
+		Neuron();
 		
-		void update(sf::Time h, double iExt, sf::Time simTime);
+		// Update
+		void update(double h, double iExt, double simStep);
 		
-		ostream& showSpikes();
+		// Getter
+		std::vector<long> getSpikesTime();
+		double getV();
+		double getJ();
+		
+		// Bool
+		bool isSpiking();
+		
+		// Recoit un spike d'un autre neurone
+		void receive(long step, double J);
+		
+		//Constantes
+		/*
+		static const double neuron_number = 0; /// à changer
+		static const double excitatory_number = 0.8*neuron_number;
+		static const double inhibitory_number = 0.2*neuron_number;
+		
+		
+		static const double gamma = 0.25; /// à changer
+		static const double excitatory_c = 1; /// à changer
+		static const double inhibitory_c = gamma*excitatory_c;
+		static const double exterior_c = excitatory_c;
+		*/
+		
+		static constexpr long tau = 20; //ms
+		static constexpr double tau_ref = 2; //ms
+		static constexpr double refractoryTime = 2.0;
+		static constexpr double v_th = 20; //mV
+		static constexpr double v_res = 0;
+		
+		static constexpr double c = 1;
+		
 		
 	private :
-		double V; // Potentiel de dépolarisation
-		vector<sf::Time> spikes; // pour mémoriser le temps de chaque spike , ON RECUPERE LE NB DE SPIKES GRACE A LA TAILLE DU VECTOR
+	
+		State state;
+		double v; // Potentiel de dépolarisation
+		double J; // Amplitude du EPSP (excitatory post synaptic potential)
+		std::vector<long> spikes; // pour mémoriser la step de chaque spike , ON RECUPERE LE NB DE SPIKES GRACE A LA TAILLE DU VECTOR
+		long localStep;
 		
-		double c; // Connections reçues par le neurone
+		//vector<double> ringBuffer;
+		std::unordered_map<long, double> ringBuffer;
+		
+		//double c; // Connections reçues par le neurone
+		
+		void updateState(double h, double simStep);
 		
 };
 
-	const double Neuron::neuron_number(0); /// à changer
-	const double Neuron::excitatory_number(0.8*neuron_number);
-	const double Neuron::inhibitory_number(0.2*neuron_number;
+/*
+	static const double Neuron::neuron_number(0); /// à changer
+	static const double Neuron::excitatory_number(0.8*neuron_number);
+	static const double Neuron::inhibitory_number(0.2*neuron_number;
 	
-	const double Neuron::gamma(0.25); /// à changer
-	const double Neuron::excitatory_c(1); /// à changer
-	const double Neuron::inhibitory_c(gamma*excitatory_c);
-	const double Neuron::exterior_c(excitatory_c);
+	static const double Neuron::gamma(0.25); /// à changer
+	static const double Neuron::excitatory_c(1); /// à changer
+	static const double Neuron::inhibitory_c(gamma*excitatory_c);
+	static const double Neuron::exterior_c(excitatory_c);
 	
-	const sf::Time Neuron::tau_exterior(milliseconds(20)); //ms
-	const sf::Time Neuron::tau(milliseconds(2)); //ms
-	const double Neuron::teta(20); mV
-	const double Neuron::reset_potential(10);
+	static const long Neuron::tau(20); //ms
+	static const double Neuron::tau_ref(2); //ms
+	static const double Neuron::refractoryTime(2.0);
+	static const double Neuron::v_th(20); mV
+	static const double Neuron::v_res(10);
+*/
 
 /*
  * PARAMETRES

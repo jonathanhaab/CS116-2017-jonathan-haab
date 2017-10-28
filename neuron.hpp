@@ -7,8 +7,8 @@
 #define NEURON_H
 
 
-enum State { EXCITATORY, INHIBITORY, REFRACTORY , stateSize};
-
+enum State {ACTIVE, REFRACTORY, stateSize};
+enum Type {INHIBITORY, EXCITATORY, typeSize};
 
 class Neuron
 {
@@ -40,6 +40,8 @@ class Neuron
 		double getV();
 		double getJ();
 		
+		// Setter
+		void setType(Type newType);
 		
 		// Recoit un spike d'un autre neurone
 		void receive(long step, double J);
@@ -63,6 +65,7 @@ class Neuron
 	private :
 	
 		State state;
+		Type type;
 		double v; // Potentiel de dépolarisation
 		const double J; // Amplitude du EPSP (excitatory post synaptic potential)
 		std::vector<long> spikes; // pour mémoriser la step de chaque spike , ON RECUPERE LE NB DE SPIKES GRACE A LA TAILLE DU VECTOR
@@ -70,10 +73,7 @@ class Neuron
 		
 		std::vector<double> ringBuffer;
 		
-		//double c; // Connections reçues par le neurone
-		
 		void updateState(double simStep);
-		
 };
 
 /*

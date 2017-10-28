@@ -16,9 +16,14 @@ constexpr int D_step = 15;
 const double c1 = exp(-h/tau);
 const double c2 = 1-exp(-h/tau);
 
+constexpr double J_e = 0.1;
+constexpr double J_i = -0.5;
 
-
-
+constexpr int N(12500); // Total number of neurons
+constexpr int N_e(0.8*N); // Number of excitatory neurons
+constexpr int N_i(0.2*N); // Number of inhibitory neurons
+constexpr int C_e(N_e*0.1); // Number of connections with excitatory neurons
+constexpr int C_i(N_i*0.1); // Number of conncections with inhibitory neurons
 
 
 

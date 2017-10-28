@@ -1,16 +1,27 @@
 #include <iostream>
 #include "neuron.hpp"
 
+#include <random>
+
 using namespace std;
 
 
-Neuron::Neuron()
-	: localStep(0), J(0.1)
+Neuron::Neuron(Type type)
+	: localStep(0), type(type)
 {
+
 	state = INHIBITORY;
 	v = v_res; //mV
 	spikes.clear();
 	ringBuffer.resize(D_step + 1);
+	
+	if(type = INHIBITORY){
+		J = J_i;
+	}
+	
+	if(type = EXCITATORY){
+		J = J_e;
+	}
 }
 
 bool Neuron::update(double iExt, double simStep)
@@ -19,12 +30,19 @@ bool Neuron::update(double iExt, double simStep)
 	
 	updateState(localStep);
 	
-	if(state == EXCITATORY) {
+	if(state == ACTIVE) {
 
+
+		// Distribution de poisson
+		poisson_distribution<> poisson(Vext*C_e*h*J);
+		random_device rd;
+		mt19937 gen(rd());
+		
 		/// Potentiel de la membrane
 		double r(tau/c);
 		int x(simStep);
-		v = c1*v + iExt*r*c2 + ringBuffer[x%(D_step+1)]; // Ajout du J à cette step
+		
+		v = c1*v + c2*iExt*r + ringBuffer[x%(D_step+1)] + poisson(gen);
 		
 		/// Réinitialisation de la cellule du ringBuffer qui vient d'être utilisée
 		ringBuffer[x%(D_step+1)] = 0;
@@ -50,7 +68,7 @@ bool Neuron::update(double iExt, double simStep)
 void Neuron::updateState(double simStep)
 {
 	if(spikes.empty() or abs(spikes.back() - (simStep))*h > refractoryTime) {
-		state = EXCITATORY;
+		state = ACTIVE;
 	} else {
 		state = REFRACTORY;
 	}
@@ -69,7 +87,20 @@ double Neuron::getV()
 
 double Neuron::getJ()
 {
+	
 	return J;
+}
+
+Type getType()
+{
+	return type;
+}
+
+
+
+void Neuron::setType(Type newType)
+{
+	type = newType;
 }
 
 

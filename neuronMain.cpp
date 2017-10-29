@@ -1,7 +1,17 @@
+/**
+ * @file   neuronMain.cpp
+ * @Author Jonathan Haab 
+ * @date   Automn, 2017
+ * @brief  Main programm to simulate a network of neurons
+ */
+
+
 #include <iostream>
 #include <fstream>
 #include <array>
+#include <random>
 #include "neuron.hpp"
+
 
 
 using namespace std;
@@ -9,6 +19,7 @@ using namespace std;
 
 int main()
 {
+
 /// Initialisation -----------------------------------------------------
 	// Time
 	const long startTime(0);
@@ -35,17 +46,17 @@ int main()
 	
 	
 	// Initialisation des excitatory
-	for(int i(0); i < N_e; ++i){
-		neurons[i] = new Neuron(EXCITATORY);
+	for(size_t i(0); i < N_e; ++i){
+		neurons[i] = (new Neuron(EXCITATORY));
 	}
 	// Initialisation des inhibitory
-	for(int i(N_e); i < neurons.size(); ++i){
-		neurons[i] = new Neuron(INHIBITORY);
+	for(size_t i(N_e); i < neurons.size(); ++i){
+		neurons[i] = (new Neuron(INHIBITORY));
 	}
 	
 	// Initialisation du network à 0
-	for(int i(0); i < network.size(); ++i){
-		for(int j(0); j < network[i].size(); ++j){
+	for(size_t i(0); i < network.size(); ++i){
+		for(size_t j(0); j < network[i].size(); ++j){
 			network[i][j] = 0;
 		}
 	}
@@ -60,7 +71,7 @@ int main()
 			std::mt19937 gen(rd());
 			std::uniform_int_distribution<> dis(0, N_e-1);
 			
-			network[dis][i] += 1;
+			network[dis(gen)][i] += 1;
 		}
 			// ... inhibitory
 		for(int j(0); j < C_i; ++j){
@@ -69,7 +80,7 @@ int main()
 			std::mt19937 gen(rd());
 			std::uniform_int_distribution<> dis(N_e, N_i-1);
 		
-			network[dis][i] += 1;
+			network[dis(gen)][i] += 1;
 		}
 	}
 
@@ -101,16 +112,11 @@ int main()
 	
 	double current_i;
 	
-
-	
-	
-	
-	
-	/*
+	neurons_potential << "\t" << simStep*h;
 	
 	while(simStep <= total_steps) {
 		
-		if((simStep >= a/h) and (simStep <= b/h)) { 
+		if((simStep >= a/h) and (simStep <= b/h)) {
 			
 			current_i = iExt;
 			
@@ -119,48 +125,35 @@ int main()
 			current_i = 0;
 		}
 		
-		if(neurons[0].update(current_i, simStep)){
+		for(int i(0); i < N; ++i){
 			
-			neurons[1].receive(simStep-1, neurons[0].getJ());
+			if(neurons[i]->update(current_i, simStep)){ // Si update return true => neuron[i] spike
+				
+				for(int j(0); j < N; ++j){ // On va donner un potentiel additionnel aux neurones auxquels neuron[i] est connecté
+					
+					if(network[i][j] != 0){ // càd si i est connecté avec j
+						
+						neurons[j]->receive(simStep-1, network[i][j]*neurons[i]->getJ()); //On multiplie par network[i][j] parce que i peut être lié plusieurs fois à j
+					}
+				}
+			}
+			
+			neurons_potential << "\t" << neurons[i]->getV();
+		
 		}
-		
-		neurons[1].update(0, simStep);
-		
-		/*
-		for(size_t i(0); i < neurons.size(); ++i) {
-			neurons_potential << "Neuron " << i+1 << "\t "<< neurons[i].getV() << "\t" << " mV at t = " << simStep*h << " ms " << "\t";
-		}
-		
-		
-		neurons_potential << "\t "<< neurons[0].getV() << "\t" << simStep*h << "\t";
-
-			
-			
-			//neurons_potential << "\t ";
-			
-		
 		
 		neurons_potential << "\n";
-		*/
 		
 		simStep += 1; 
 	}
-		
+	
+	// Désalocation des pointeurs
+	for(size_t i(0); i < N; ++i){
+		delete neurons[i];
+	}
+	
+	// Fermeture des stream
 	neurons_potential.close();
 	
 	return 0;
 }
-
-
-/*
- * 
- * 
- * 
- * 
- * D'après le texte 
- * tauE = 20 ms
- * Vmax ou teta = 20 mV
- * Vr = 10 mV
- * tau = 2 ms
- * 
- */

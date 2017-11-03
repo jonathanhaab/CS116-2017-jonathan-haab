@@ -21,66 +21,107 @@ using namespace std;
 Neuron::Neuron(Type type)
 	: localStep(0), type(type)
 {
-
 	state = REFRACTORY;
 	v = v_res; //mV
 	spikes.clear();
-	ringBuffer.resize(D_step + 1);
+	ringBuffer.resize(bufferDelay + 1);
 	
 	if(type == INHIBITORY){
 		J = J_i;
-	}
-	
-	if(type == EXCITATORY){
+	} else { // otherwise it's EXCITATORY
 		J = J_e;
 	}
 }
 
 /** update
  * 
- *  @param iExt	 the current given to the neuron
  *  @param simStep 	the time expressed in steps at which the neuron update
  *  @retval TRUE	the neuron spikes
  *  @retval FALSE	the neuron doesn't spike
  */
 
-bool Neuron::update(double iExt, double simStep)
+bool Neuron::update(double simStep)
 {
 	bool isSpiking(false);
 	
+	while(localStep < simStep){
+		
+		updateState(localStep);
+		
+		if(state == ACTIVE) {
+
+			// Distribution de poisson
+			static poisson_distribution<> poisson(nu_ext * h);
+			static random_device rd;
+			static mt19937 gen(rd());
+			
+			//cout << (nu_ext * h) << endl;
+			// Potentiel de la membrane
+			double r(tau/c);
+			int x(localStep);
+			
+			v = c1*v + ringBuffer[x%(bufferDelay+1)] + poisson(gen);
+			
+			// Réinitialisation de la cellule du ringBuffer qui vient d'être utilisée
+			ringBuffer[x%(bufferDelay+1)] = 0;
+			
+			// Spike (20mV)
+			if(v > v_th) {
+				v = v_res;
+				spikes.push_back(localStep);
+				isSpiking = true;
+			}
+			
+		} else {
+			
+			v = v_res; // refractory
+			
+		}
+		
+		localStep += 1;
+	}
+	return isSpiking;
+}
+
+/** updateTest
+ * 
+ *  @note	 only used for unittest to check if the update is well implemented
+ *  @param iExt	 the current given to the neuron
+ *  @param simStep 	the time expressed in steps at which the neuron update
+ *  @retval TRUE	the neuron spikes
+ *  @retval FALSE	the neuron doesn't spike
+ */
+bool Neuron::updateTest(double iExt, double simStep)
+{
+	bool isSpiking(false);
+	
+	while(localStep < simStep){
 	updateState(localStep);
 	
 	if(state == ACTIVE) {
-
-
-		// Distribution de poisson
-		poisson_distribution<> poisson(2*v_th*C_e*h*J);
-		random_device rd;
-		mt19937 gen(rd());
-		
-		// Potentiel de la membrane
-		double r(tau/c);
-		int x(simStep);
-		
-		v = c1*v + c2*iExt*r + ringBuffer[x%(D_step+1)] + poisson(gen);
-		
-		// Réinitialisation de la cellule du ringBuffer qui vient d'être utilisée
-		ringBuffer[x%(D_step+1)] = 0;
-		
-		// Spike (20mV)
-		if(v > v_th) {
-			v = v_res;
-			spikes.push_back(simStep);
-			isSpiking = true;
+			
+			int x(localStep);
+			
+			v = c1*v + c2*iExt + ringBuffer[x%(bufferDelay)];
+			
+			// Réinitialisation de la cellule du ringBuffer qui vient d'être utilisée
+			ringBuffer[x%(bufferDelay+1)] = 0;
+			
+			// Spike (20mV)
+			if(v > v_th) {
+				v = v_res;
+				spikes.push_back(localStep);
+				isSpiking = true;
+			}
+			
+		} else {
+			
+			v = v_res; // refractory
+			
 		}
 		
-	} else {
-		
-		v = v_res; // refractory
-		
+		localStep += 1;
 	}
-	
-	localStep += 1;
 	
 	return isSpiking;
 }
@@ -145,5 +186,5 @@ double Neuron::getJ()
 void Neuron::receive(long step, double J) 
 {
 	int x(step);
-	ringBuffer[x%(D_step+1)] += J;
+	ringBuffer[x%(bufferDelay+1)] += J;
 }

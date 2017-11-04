@@ -1,6 +1,6 @@
 /**
  * @file   neuronMain.cpp
- * @Author Jonathan Haab 
+ * @author Jonathan Haab 
  * @date   Automn, 2017
  * @brief  Main programm to simulate a network of neurons
  */
@@ -17,8 +17,11 @@
 
 using namespace std;
 
-void progressPrinting(double step);
-int progress(0);
+/** progressPrinting
+ * 
+ * @note print a progress indicator on the terminal
+ */
+void progressPrinting(double step); 
 
 int main()
 {
@@ -26,9 +29,9 @@ int main()
 	
 	cout << "** INITIALIZATION **" << endl;
 	
-	double simStep(0);
-	int progress(0);
-	int percent(0);
+	double simStep(0); //!< the step at wich the simulation is
+	int progress(0); //!< indicate the progress of the simulation
+	int percent(0); //!< the progress at every step is recalculated and save in this variable
 	Network network("Neurons_Spikes.txt");
 	
 	

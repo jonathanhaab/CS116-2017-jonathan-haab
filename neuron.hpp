@@ -1,6 +1,6 @@
 /**
  * @file   neuron.hpp
- * @Author Jonathan Haab 
+ * @author Jonathan Haab 
  * @date   Automn, 2017
  * @brief  class that describe a neuron
  */
@@ -13,8 +13,9 @@
 #ifndef NEURON_H
 #define NEURON_H
 
-
+/// State of the neuron : Active or Refractory
 enum State {ACTIVE, REFRACTORY, stateSize};
+/// Type of the neuron : Excitatory or Inhibitory
 enum Type {INHIBITORY, EXCITATORY, typeSize};
 
 class Neuron
@@ -30,13 +31,20 @@ class Neuron
 		Neuron(Type type);
 		
 		/** update
-		 *  @param iExt	 the current given to the neuron
 		 *  @param simStep 	the time expressed in steps at which the neuron update
 		 *  @retval TRUE	the neuron spikes
 		 *  @retval FALSE	the neuron doesn't spike
 		 */
 		bool update(double simStep);
 		
+		/** updateTest
+		 * 
+		 *  @note	 only used for unittest to check if the update is well implemented
+		 *  @param iExt	 the current given to the neuron
+		 *  @param simStep 	the time expressed in steps at which the neuron update
+		 *  @retval TRUE	the neuron spikes
+		 *  @retval FALSE	the neuron doesn't spike
+		 */
 		bool updateTest(double iExt, double simStep);
 		
 		/** getSpikesTime

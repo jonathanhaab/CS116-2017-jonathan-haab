@@ -1,6 +1,6 @@
 /**
  * @file   neuron.cpp
- * @Author Jonathan Haab 
+ * @author Jonathan Haab 
  * @date   Automn, 2017
  * @brief  contains all the methods for the neuron
  */
@@ -96,30 +96,36 @@ bool Neuron::updateTest(double iExt, double simStep)
 	bool isSpiking(false);
 	
 	while(localStep < simStep){
-	updateState(localStep);
-	
-	if(state == ACTIVE) {
-			
-			int x(localStep);
-			
-			v = c1*v + c2*iExt + ringBuffer[x%(bufferDelay)];
-			
-			// Réinitialisation de la cellule du ringBuffer qui vient d'être utilisée
-			ringBuffer[x%(bufferDelay+1)] = 0;
-			
-			// Spike (20mV)
-			if(v > v_th) {
-				v = v_res;
-				spikes.push_back(localStep);
-				isSpiking = true;
+		
+		updateState(localStep);
+		int x(localStep);
+		if(state == ACTIVE) {
+				
+				
+				
+				v = c1*v + c2*iExt + ringBuffer[x%(bufferDelay+1)];
+				
+				// Réinitialisation de la cellule du ringBuffer qui vient d'être utilisée
+				//ringBuffer[x%(bufferDelay+1)] = 0;
+				
+				// Spike (20mV)
+				if(v > v_th) {
+					v = v_res;
+					spikes.push_back(localStep);
+					isSpiking = true;
+				}
+				
+			} else {
+				
+				v = v_res; // refractory
+				
+				// Réinitialisation de la cellule du ringBuffer qui aurait du être utilisée si on avait pas été refractory
+				//ringBuffer[x%(bufferDelay+1)] = 0;
 			}
 			
-		} else {
-			
-			v = v_res; // refractory
-			
-		}
-		
+			// Réinitialisation de la cellule du ringBuffer correspondant à notre step
+			ringBuffer[x%(bufferDelay+1)] = 0;
+				
 		localStep += 1;
 	}
 	
@@ -186,5 +192,5 @@ double Neuron::getJ()
 void Neuron::receive(long step, double J) 
 {
 	int x(step);
-	ringBuffer[x%(bufferDelay+1)] += J;
+	ringBuffer[(x+bufferDelay)%(bufferDelay)] += J;
 }

@@ -1,4 +1,8 @@
-project(Neuron_Test)
+#Author: Jonathan Haab 
+#Date : Automn 2017
+
+
+project(Neurons)
 cmake_minimum_required(VERSION 2.6)
 
 set(CMAKE_CXX_FLAGS "-W  -pedantic -std=c++11")
@@ -7,7 +11,7 @@ enable_testing()
 add_subdirectory(googletest)
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
-add_executable(neuron_unittest
+add_executable(Neurons_unittest
 	neuron.cpp
 	neuron_unittest.cpp
 )
@@ -20,10 +24,11 @@ add_executable(Neurons
 	network.hpp
 )
 
-target_link_libraries(neuron_unittest gtest gtest_main)
-add_test(neuron_unittest neuron_unittest)
+target_link_libraries(Neurons_unittest gtest gtest_main)
+add_test(Neurons_unittest neuron_unittest)
 
 
+#DOXYGEN---------------------------------------------------------------
 # We first check if Doxygen is present.
 find_package(Doxygen)
 if(DOXYGEN_FOUND)

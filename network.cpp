@@ -1,6 +1,6 @@
 /**
  * @file   network.cpp
- * @Author Jonathan Haab 
+ * @author Jonathan Haab 
  * @date   Automn, 2017
  * @brief  class that build a network of neurons
  */

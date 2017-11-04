@@ -1,6 +1,6 @@
 /**
  * @file   network.hpp
- * @Author Jonathan Haab 
+ * @author Jonathan Haab 
  * @date   Automn, 2017
  * @brief  class that build a network of neurons
  */
@@ -18,7 +18,7 @@ class Network
 	
 		/** Constructor
 		 * 
-		 * @param the title of the file in which we want to 
+		 * @param title	the title of the file in which we want to 
 		 * 					print the data of the update
 		 * 
 		 * @note opens the flow to write the data

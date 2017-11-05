@@ -17,7 +17,6 @@ constexpr double stopTime = 200; //!< time at which we end the simulation
 const double total_steps = std::abs(stopTime-startTime)/h; //!< total number of step of the simulation
 
 constexpr long tau = 20;  //!< a variable (in ms) of the differential equation for the update fonction
-constexpr double tau_ref = 2; //!< 
 constexpr double refractorySteps = 20; //!< refractory time given in steps of h
 
 constexpr double v_th = 20; //!< the potential (in mV) at which the neuron spike 
